@@ -73,14 +73,14 @@ class NeuralNetwork:
         for i in range(self.hid):
             tmp_sum = 0.0
             for j in range(self.inp + 1):
-                tmp_sum = tmp_sum + tmp_signal[j] * self.wih[j][i]
+                tmp_sum += tmp_signal[j] * self.wih[j][i]
             self.hidden_output[i] = sigmoid(tmp_sum)
 
         tmp_hidden_output = self.hidden_output + [1]
         for i in range(self.out):
             tmp_sum = 0.0
             for j in range(self.hid + 1):
-                tmp_sum = tmp_sum + tmp_hidden_output[j] * self.who[j][i]
+                tmp_sum += tmp_hidden_output[j] * self.who[j][i]
             self.output[i] = sigmoid(tmp_sum)
 
     def backPropagate(self, signal, target):
@@ -90,18 +90,18 @@ class NeuralNetwork:
         for i in range(self.hid):
             self.errh[i] = 0.0
             for j in range(self.out):
-                self.errh[i] = self.errh[i] + self.erro[j]*self.who[i][j]
-            self.errh[i] = self.errh[i]*sigmoidDerivative(self.hidden_output[i])
+                self.errh[i] += self.erro[j]*self.who[i][j]
+            self.errh[i] *= sigmoidDerivative(self.hidden_output[i])
 
         for i in range(self.out):
             for j in range(self.hid):
-                self.who[j][i] = self.who[j][i] + (self.LEARN_RATE * self.erro[i]*self.hidden_output[j])
-            self.who[self.hid][i] = self.who[self.hid][i] + (self.LEARN_RATE * self.erro[i])
+                self.who[j][i] += (self.LEARN_RATE * self.erro[i]*self.hidden_output[j])
+            self.who[self.hid][i] += (self.LEARN_RATE * self.erro[i])
 
         for i in range(self.hid):
             for j in range(self.inp):
-                self.wih[j][i] = self.wih[j][i] + (self.LEARN_RATE * self.errh[i]*signal[j])
-            self.wih[self.inp][i] = self.wih[self.inp][i] + (self.LEARN_RATE * self.errh[i])
+                self.wih[j][i] += (self.LEARN_RATE * self.errh[i]*signal[j])
+            self.wih[self.inp][i] += (self.LEARN_RATE * self.errh[i])
 
     def clearOuts(self):
         self.hidden_output = [0 for _ in range(self.hid)]
@@ -121,7 +121,7 @@ if __name__ == '__main__':
     nn.printNetwork()
     printSeparator()
         
-    for i in range(20000):
+    for i in range(5000):
         for signal, target in zip(SIGNAL, TARGET):
             nn.trainIteration(signal, target)
     
