@@ -69,25 +69,29 @@ class NeuralNetwork:
 
     def feedForward(self, signal):
         tmp_signal = signal + [1]
-        for i in range(self.inp + 1):
-            for j in range(self.hid):
-                self.hidden_output[j] = self.hidden_output[j] + tmp_signal[i] * self.wih[i][j]
-        self.hidden_output = [sigmoid(x) for x in self.hidden_output]
+        
+        for i in range(self.hid):
+            tmp_sum = 0.0
+            for j in range(self.inp + 1):
+                tmp_sum = tmp_sum + tmp_signal[j] * self.wih[j][i]
+            self.hidden_output[i] = sigmoid(tmp_sum)
 
         tmp_hidden_output = self.hidden_output + [1]
-        for i in range(self.hid + 1):
-            for j in range(self.out):
-                self.output[j] = self.output[j] + tmp_hidden_output[i] * self.who[i][j]
-        self.output = [sigmoid(x) for x in self.output]
+        for i in range(self.out):
+            tmp_sum = 0.0
+            for j in range(self.hid + 1):
+                tmp_sum = tmp_sum + tmp_hidden_output[j] * self.who[j][i]
+            self.output[i] = sigmoid(tmp_sum)
 
     def backPropagate(self, signal, target):
         for i in range(self.out):
             self.erro[i] = (target[i] - self.output[i])*sigmoidDerivative(self.output[i])
 
         for i in range(self.hid):
+            self.errh[i] = 0.0
             for j in range(self.out):
                 self.errh[i] = self.errh[i] + self.erro[j]*self.who[i][j]
-            self.errh[i] = sigmoidDerivative(self.errh[i])
+            self.errh[i] = self.errh[i]*sigmoidDerivative(self.hidden_output[i])
 
         for i in range(self.out):
             for j in range(self.hid):
@@ -106,7 +110,6 @@ class NeuralNetwork:
         self.errh = [0 for _ in range(self.hid)]
 
     def trainIteration(self, signal, target):
-        self.clearOuts()
         self.feedForward(signal)
         self.backPropagate(signal, target)      
         
@@ -114,16 +117,18 @@ class NeuralNetwork:
 
 if __name__ == '__main__':
     random.seed()
-    nn = NeuralNetwork(2, 2, 1)
+    nn = NeuralNetwork(2, 5, 1)
     nn.printNetwork()
     printSeparator()
         
-    for i in range(5000):
+    for i in range(20000):
         for signal, target in zip(SIGNAL, TARGET):
             nn.trainIteration(signal, target)
     
     nn.printNetwork()
     printSeparator()
 
-    nn.feedForward(TEST_SIGNAL)
-    nn.printNetwork()
+    for signal in SIGNAL:
+        nn.feedForward(signal)
+        print(signal, end = '')
+        print(nn.output)
