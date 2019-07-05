@@ -103,12 +103,6 @@ class NeuralNetwork:
                 self.wih[j][i] += (self.LEARN_RATE * self.errh[i]*signal[j])
             self.wih[self.inp][i] += (self.LEARN_RATE * self.errh[i])
 
-    def clearOuts(self):
-        self.hidden_output = [0 for _ in range(self.hid)]
-        self.output = [0 for _ in range(self.out)]
-        self.erro = [0 for _ in range(self.out)]
-        self.errh = [0 for _ in range(self.hid)]
-
     def trainIteration(self, signal, target):
         self.feedForward(signal)
         self.backPropagate(signal, target)      
